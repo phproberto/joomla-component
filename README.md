@@ -1,12 +1,10 @@
-# Joomla! Component library by Phproberto  
+# Library to interact with Joomla! Components
 
 > Library to interact with Joomla! Components.
 
 [![Build Status](https://travis-ci.org/phproberto/joomla-component.svg?branch=master)](https://travis-ci.org/phproberto/joomla-component)
 [![Code Coverage](https://scrutinizer-ci.com/g/phproberto/joomla-component/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/phproberto/joomla-component/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phproberto/joomla-component/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phproberto/joomla-component/?branch=master)
-
-**STILL NOT READY FOR PRODUCTION**
 
 ## Quickstart
 
