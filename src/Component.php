@@ -186,6 +186,7 @@ class Component
 		}
 		catch (\Exception $e)
 		{
+			// There are models with no associated tables
 		}
 
 		$model = \JModelLegacy::getInstance($name, $prefix, $config);
