@@ -7,6 +7,7 @@ Component class is intended to ease the management of component related stuff.
 Things like retrieve and change parameters made easy.
 
 * [Methods](#methods)
+    * [admin()](#admin)
     * [clear($option)](#clear)
     * [getActive()](#getActive)
     * [getFresh($option)](#getFresh)
@@ -16,6 +17,28 @@ Things like retrieve and change parameters made easy.
     * [saveParams()](#saveParams)
 
 ## Methods<a id="methods"></a>
+
+### admin() <a id="admin"></a>
+
+> Switches the component client to admin to search for models, tables, etc. 
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`self` Self instance for chaining
+
+**Examples:**
+
+```php
+// This will search for a model in backend
+Component::get('com_content')
+    ->admin()
+    ->getModel('Articles');
+
+```
 
 ### clear($option) <a id="clear"></a>
 
