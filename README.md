@@ -6,6 +6,8 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/phproberto/joomla-component/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/phproberto/joomla-component/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phproberto/joomla-component/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phproberto/joomla-component/?branch=master)
 
+**STILL NOT READY FOR PRODUCTION**
+
 ## Requirements
 
 * **PHP 5.4+** Due to the use of traits
