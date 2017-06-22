@@ -1,4 +1,4 @@
-# Library to interact with Joomla! Components
+# Joomla! Component Library
 
 > Library to interact with Joomla! Components.
 
