@@ -19,6 +19,6 @@ See [docs](./docs/README.md) for detailed information.
 
 ## License
 
-This library is licensed under [GNU/GPL 2 license](http://www.gnu.org/licenses/gpl-2.0.html).  
+This library is licensed under [GNU LESSER GENERAL PUBLIC LICENSE](./LICENSE).  
 
 Copyright (C) 2017 [Roberto Segura López](http://phproberto.com) - All rights reserved.  
