@@ -12,6 +12,7 @@ Things like retrieve and change parameters made easy.
     * [getFreshInstance($option)](#getFreshInstance)
     * [getInstance($option)](#getInstance)
     * [getPrefix()](#getPrefix)
+    * [getTable($name, array $config = array(), $backend = true)](#getTable)
 
 ## Methods<a id="methods"></a>
 
