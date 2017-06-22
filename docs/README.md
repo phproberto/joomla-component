@@ -7,16 +7,16 @@ Component class is intended to ease the management of component related stuff.
 Things like retrieve and change parameters made easy.
 
 * [Methods](#methods)
-    * [clearInstance($option)](#clearInstance)
+    * [clear($option)](#clear)
     * [getActive()](#getActive)
-    * [getFreshInstance($option)](#getFreshInstance)
-    * [getInstance($option)](#getInstance)
+    * [getFresh($option)](#getFresh)
+    * [get($option)](#get)
     * [getPrefix()](#getPrefix)
     * [getTable($name, array $config = array(), $backend = true)](#getTable)
 
 ## Methods<a id="methods"></a>
 
-### clearInstance($option) <a id="clearInstance"></a>
+### clear($option) <a id="clear"></a>
 
 > Clears a cached instance from the static cache. 
 
@@ -34,18 +34,18 @@ By default components are statically cached to avoid that their information is r
 
 ```php
 // This will store a param in the statically cached instance
-Component::getInstance('com_content')
+Component::get('com_content')
     ->setParam('foo', 'var');
 
 // This will return `var` because instance is cached
-$foo = Component::getInstance('com_content')
+$foo = Component::get('com_content')
     ->getParam('foo');
 
 // This will clear the cached instance
-Component::clearInstance('com_content');
+Component::clear('com_content');
 
 // This will return `NULL` because cached instance was cleared
-$foo = Component::getInstance('com_content')
+$foo = Component::get('com_content')
     ->getParam('foo');
 ```
 
@@ -79,7 +79,7 @@ catch (\InvalidArgumentException $e)
 return $component ? $component->getParams() : new Registry;
 ```
 
-### getFreshInstance($option) <a id="getFreshInstance"></a>
+### getFresh($option) <a id="getFresh"></a>
 
 > Retrieve a non-statically-cached instance.
 
@@ -97,19 +97,19 @@ By default components are statically cached to avoid that their information is r
 
 ```php
 // This will store a param in the statically cached instance
-Component::getInstance('com_content')
+Component::get('com_content')
     ->setParam('foo', 'var');
 
 // This will return `var` because instance is cached
-$foo = Component::getInstance('com_content')
+$foo = Component::get('com_content')
     ->getParam('foo');
 
 // This will return `NULL` because cached instance was cleared
-$foo = Component::getFreshInstance('com_content')
+$foo = Component::getFresh('com_content')
     ->getParam('foo');
 ```
 
-### getInstance($option)<a id="getInstance"></a>
+### get($option)<a id="get"></a>
 
 > Retrieve an instance of specific component.
 
@@ -127,7 +127,7 @@ It will return a statically cached instance if component has been already loaded
 
 ```php
 // Retrieve com_content component
-$component = Component::getInstance('com_content');
+$component = Component::get('com_content');
 
 if ($component->getParam('show_title', '1') === '1')
 {
@@ -153,7 +153,7 @@ None
 
 ```php
 // Retrieve com_content component
-$component = Component::getInstance('com_content');
+$component = Component::get('com_content');
 
 // Returns Content
 $prefix = $component->getPrefix();
@@ -178,7 +178,7 @@ Try to find and load a table of the component.
 **Examples:**
 
 ```php
-$table = Component::getInstance('com_banners')->getTable('Banner');
-$table = Component::getInstance('com_banners')->getTable('Client');
-$table = Component::getInstance('com_menus')->getTable('Menu');
+$table = Component::get('com_banners')->getTable('Banner');
+$table = Component::get('com_banners')->getTable('Client');
+$table = Component::get('com_menus')->getTable('Menu');
 ```

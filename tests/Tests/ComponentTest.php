@@ -51,13 +51,13 @@ class ComponentTest extends \TestCaseDatabase
 	}
 
 	/**
-	 * Test the cached
+	 * Test clear method.
 	 *
 	 * @return  void
 	 */
-	public function testClearInstance()
+	public function testClear()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$this->assertEquals('Content', $component->getPrefix());
 
 		$reflection = new \ReflectionClass($component);
@@ -65,11 +65,11 @@ class ComponentTest extends \TestCaseDatabase
 		$prefix->setAccessible(true);
 		$prefix->setValue($component, 'Custom');
 
-		$component2 = Component::getInstance('com_content');
+		$component2 = Component::get('com_content');
 		$this->assertEquals('Custom', $component2->getPrefix());
-		Component::clearInstance('com_content');
+		Component::clear('com_content');
 
-		$component2 = Component::getInstance('com_content');
+		$component2 = Component::get('com_content');
 		$this->assertEquals('Content', $component2->getPrefix());
 	}
 
@@ -91,7 +91,7 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetExtension()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$this->assertEquals(self::COM_CONTENT_EXTENSION_ID, $component->getExtension()->extension_id);
 
 		$reflection = new \ReflectionClass($component);
@@ -110,9 +110,9 @@ class ComponentTest extends \TestCaseDatabase
 	 *
 	 * @return  void
 	 */
-	public function testGetFreshInstance()
+	public function testGetFresh()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$this->assertEquals('Content', $component->getPrefix());
 
 		$reflection = new \ReflectionClass($component);
@@ -120,10 +120,10 @@ class ComponentTest extends \TestCaseDatabase
 		$prefix->setAccessible(true);
 		$prefix->setValue($component, 'Custom');
 
-		$component2 = Component::getInstance('com_content');
+		$component2 = Component::get('com_content');
 		$this->assertEquals('Custom', $component2->getPrefix());
 
-		$component2 = Component::getFreshInstance('com_content');
+		$component2 = Component::getFresh('com_content');
 		$this->assertEquals('Content', $component2->getPrefix());
 	}
 
@@ -134,7 +134,7 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetParams()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$defaultParams = $component->getParams();
 		$this->assertNotEquals(0, count($defaultParams->toArray()));
 
@@ -155,10 +155,10 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetInstance()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$this->assertEquals('Content', $component->getPrefix());
 
-		$component = Component::getInstance('COM_CONTENT');
+		$component = Component::get('COM_CONTENT');
 		$this->assertEquals('Content', $component->getPrefix());
 
 		$reflection = new \ReflectionClass($component);
@@ -166,7 +166,7 @@ class ComponentTest extends \TestCaseDatabase
 		$prefix->setAccessible(true);
 		$prefix->setValue($component, 'Custom');
 
-		$component2 = Component::getInstance('com_content');
+		$component2 = Component::get('com_content');
 		$this->assertEquals('Custom', $component2->getPrefix());
 
 		$prefix->setValue($component, null);
@@ -180,13 +180,13 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetPrefix()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$this->assertEquals('Content', $component->getPrefix());
 
-		$component = Component::getInstance('com_banners');
+		$component = Component::get('com_banners');
 		$this->assertEquals('Banners', $component->getPrefix());
 
-		$component = Component::getInstance('com_ComPlex_Option');
+		$component = Component::get('com_ComPlex_Option');
 		$this->assertEquals('Complex_Option', $component->getPrefix());
 	}
 
@@ -197,11 +197,11 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetTable()
 	{
-		$component = Component::getInstance('com_categories');
+		$component = Component::get('com_categories');
 		$table = $component->getTable('Category');
 		$this->assertEquals('CategoriesTableCategory', get_class($table));
 
-		$component = Component::getInstance('com_menus');
+		$component = Component::get('com_menus');
 		$table = $component->getTable('Menu');
 		$this->assertEquals('MenusTableMenu', get_class($table));
 	}
@@ -215,7 +215,7 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetTableThrowsException()
 	{
-		$component = Component::getInstance('com_categories');
+		$component = Component::get('com_categories');
 		$table = $component->getTable('Inexistent');
 	}
 
@@ -226,7 +226,7 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testSaveParams()
 	{
-		$component = Component::getInstance('com_content');
+		$component = Component::get('com_content');
 		$defaultParams = $component->getParams();
 		$this->assertNotEquals(0, count($defaultParams->toArray()));
 
@@ -234,7 +234,7 @@ class ComponentTest extends \TestCaseDatabase
 		$component->saveParams();
 		$this->assertNotEquals($defaultParams, $component->getParams());
 
-		$component = Component::getFreshInstance('com_content');
+		$component = Component::getFresh('com_content');
 		$this->assertEquals('my-value', $component->getParam('custom-param'));
 	}
 }

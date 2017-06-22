@@ -69,7 +69,7 @@ class Component
 	 *
 	 * @return  void
 	 */
-	public static function clearInstance($option)
+	public static function clear($option)
 	{
 		unset(static::$instances[get_called_class()][$option]);
 	}
@@ -83,7 +83,7 @@ class Component
 	 */
 	public static function getActive()
 	{
-		return static::getInstance(static::getActiveOption());
+		return static::get(static::getActiveOption());
 	}
 
 	/**
@@ -105,11 +105,11 @@ class Component
 	 *
 	 * @return  $this
 	 */
-	public static function getFreshInstance($option)
+	public static function getFresh($option)
 	{
-		static::clearInstance($option);
+		static::clear($option);
 
-		return static::getInstance($option);
+		return static::get($option);
 	}
 
 	/**
@@ -119,7 +119,7 @@ class Component
 	 *
 	 * @return  $this
 	 */
-	public static function getInstance($option)
+	public static function get($option)
 	{
 		$option = trim(strtolower($option));
 
