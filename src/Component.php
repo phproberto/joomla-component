@@ -9,6 +9,10 @@
 namespace Phproberto\Joomla\Component;
 
 use Joomla\Registry\Registry;
+use Phproberto\Joomla\Client\Client;
+use Phproberto\Joomla\Client\Site;
+use Phproberto\Joomla\Client\Administrator;
+use Phproberto\Joomla\Client\ClientInterface;
 use Phproberto\Joomla\Traits;
 
 defined('JPATH_PLATFORM') || die;
@@ -37,6 +41,13 @@ class Component
 	protected $prefix;
 
 	/**
+	 * Active client.
+	 *
+	 * @var  ClientInterface
+	 */
+	protected $client;
+
+	/**
 	 * Cached instances.
 	 *
 	 * @var  array
@@ -46,11 +57,12 @@ class Component
 	/**
 	 * Constructor
 	 *
-	 * @param   string  $option  Component option
+	 * @param   string           $option  Component option
+	 * @param   ClientInterface  $client  Client
 	 *
 	 * @throws  \InvalidArgumentException
 	 */
-	public function __construct($option)
+	public function __construct($option, ClientInterface $client = null)
 	{
 		$option = trim(strtolower($option));
 
@@ -59,7 +71,20 @@ class Component
 			throw new \InvalidArgumentException(__CLASS__ . ': Empty component option.');
 		}
 
+		$this->client = $client ?: Client::active();
 		$this->option = $option;
+	}
+
+	/**
+	 * Switch to admin client.
+	 *
+	 * @return  self
+	 */
+	public function admin()
+	{
+		$this->client = new Administrator;
+
+		return $this;
 	}
 
 	/**
@@ -99,21 +124,6 @@ class Component
 	}
 
 	/**
-	 * Alias method to get a backend model.
-	 *
-	 * @param   string   $name     Name of the model.
-	 * @param   array    $config   Optional array of configuration for the model
-	 *
-	 * @return  \JModelLegacy
-	 *
-	 * @throws  \InvalidArgumentException  If not found
-	 */
-	public function getBackendModel($name, array $config = array('ignore_request' => true))
-	{
-		return $this->getModel($name, $config, true);
-	}
-
-	/**
 	 * Ensure that we retrieve a non-statically-cached instance.
 	 *
 	 * @param   string  $option   Component option
@@ -125,21 +135,6 @@ class Component
 		static::clear($option);
 
 		return static::get($option);
-	}
-
-	/**
-	 * Alias method to get a frontend model.
-	 *
-	 * @param   string   $name     Name of the model.
-	 * @param   array    $config   Optional array of configuration for the model
-	 *
-	 * @return  \JModelLegacy
-	 *
-	 * @throws  \InvalidArgumentException  If not found
-	 */
-	public function getFrontendModel($name, array $config = array('ignore_request' => true))
-	{
-		return $this->getModel($name, $config);
 	}
 
 	/**
@@ -166,23 +161,22 @@ class Component
 	/**
 	 * Get a model of this component.
 	 *
-	 * @param   string   $name     Name of the model.
-	 * @param   array    $config   Optional array of configuration for the model
-	 * @param   boolean  $backend  Search in backend folder?
+	 * @param   string  $name    Name of the model.
+	 * @param   array   $config  Optional array of configuration for the model
 	 *
 	 * @return  \JModelLegacy
 	 *
 	 * @throws  \InvalidArgumentException  If not found
 	 */
-	public function getModel($name, array $config = array('ignore_request' => true), $backend = false)
+	public function getModel($name, array $config = array('ignore_request' => true))
 	{
 		$prefix = $this->getPrefix() . 'Model';
 
-		\JModelLegacy::addIncludePath($this->getModelsFolder($backend), $prefix);
+		\JModelLegacy::addIncludePath($this->getModelsFolder(), $prefix);
 
 		try
 		{
-			\JTable::addIncludePath($this->getTablesFolder($backend));
+			\JTable::addIncludePath($this->getTablesFolder());
 		}
 		catch (\Exception $e)
 		{
@@ -193,10 +187,8 @@ class Component
 
 		if (!$model instanceof \JModel && !$model instanceof \JModelLegacy)
 		{
-			$clientName = $backend ? 'backend' : 'frontend';
-
 			throw new \InvalidArgumentException(
-				sprintf("Cannot find the model `%s` in `%s` component's %s.", $name, $this->option, $clientName)
+				sprintf("Cannot find the model `%s` in `%s` component's %s folder.", $name, $this->option, $this->client->getName())
 			);
 		}
 
@@ -206,17 +198,13 @@ class Component
 	/**
 	 * Get the folder where the models are.
 	 *
-	 * @param   boolean  $backend  Search in backend?
-	 *
 	 * @return  string
 	 *
 	 * @throws  \RuntimeException  If not found
 	 */
-	protected function getModelsFolder($backend = false)
+	protected function getModelsFolder()
 	{
-		$baseFolder = $backend ? JPATH_ADMINISTRATOR : JPATH_SITE;
-
-		$folder = $baseFolder . '/components/' . $this->option . '/models';
+		$folder = $this->client->getFolder() . '/components/' . $this->option . '/models';
 
 		if (is_dir($folder))
 		{
@@ -224,24 +212,20 @@ class Component
 		}
 
 		throw new \RuntimeException(
-			sprintf('Cannot find the models folder for component %s.', $this->option)
+			sprintf("Cannot find the models folder for `%s` component in `%s` folder.", $this->option, $this->client->getName())
 		);
 	}
 
 	/**
 	 * Get the folder where the tables are.
 	 *
-	 * @param   boolean  $backend  Search in backend?
-	 *
 	 * @return  string
 	 *
 	 * @throws  \RuntimeException  If not found
 	 */
-	protected function getTablesFolder($backend = false)
+	protected function getTablesFolder()
 	{
-		$baseFolder = $backend ? JPATH_ADMINISTRATOR : JPATH_SITE;
-
-		$folder = $baseFolder . '/components/' . $this->option . '/tables';
+		$folder = $this->client->getFolder() . '/components/' . $this->option . '/tables';
 
 		if (is_dir($folder))
 		{
@@ -249,7 +233,7 @@ class Component
 		}
 
 		throw new \RuntimeException(
-			sprintf('Cannot find the tables folder for component %s.', $this->option)
+			sprintf("Cannot find the tables folder for `%s` component in `%s` folder.", $this->option, $this->client->getName())
 		);
 	}
 
@@ -281,26 +265,23 @@ class Component
 	 *
 	 * @param   string   $name     Name of the table to load. Example: Article
 	 * @param   array    $config   Optional array of configuration for the table
-	 * @param   boolean  $backend  Search in backend folder?
 	 *
 	 * @return  \JTable
 	 *
 	 * @throws  \InvalidArgumentException  If not found
 	 */
-	public function getTable($name, array $config = array(), $backend = true)
+	public function getTable($name, array $config = array())
 	{
 		$prefix = $this->getPrefix() . 'Table';
 
-		$baseFolder = $backend ? JPATH_ADMINISTRATOR : JPATH_SITE;
-
-		\JTable::addIncludePath($baseFolder . '/components/' . $this->option . '/tables');
+		\JTable::addIncludePath($this->getTablesFolder());
 
 		$table = \JTable::getInstance($name, $prefix, $config);
 
 		if (!$table instanceof \JTable)
 		{
 			throw new \InvalidArgumentException(
-				sprintf('Cannot find the table %s in component %s.', $prefix . $name, $this->option)
+				sprintf("Cannot find the table `%s` in `%s` component's `%s` folder.", $prefix . $name, $this->option, $this->client->getName())
 			);
 		}
 
@@ -354,5 +335,17 @@ class Component
 		$db->setQuery($query);
 
 		return $db->execute() ? true : false;
+	}
+
+	/**
+	 * Switch to site client.
+	 *
+	 * @return  self
+	 */
+	public function site()
+	{
+		$this->client = new Site;
+
+		return $this;
 	}
 }

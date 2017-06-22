@@ -39,10 +39,6 @@ class ComponentTest extends \TestCaseDatabase
 
 		$app = $this->getMockApplication();
 
-		$app->expects($this->any())
-			->method('getTemplate')
-			->will($this->returnValue('sample'));
-
 		\JFactory::$application = $app;
 	}
 	/**
@@ -122,10 +118,25 @@ class ComponentTest extends \TestCaseDatabase
 	 *
 	 * @return  void
 	 */
-	public function testGetBackendModel()
+	public function testGetModelReturnsBackendModel()
 	{
+		$component = Component::get('com_admin')->admin();
+		$this->assertEquals('AdminModelProfile', get_class($component->getModel('Profile')));
+	}
+
+	/**
+	 * Test getModel will return a backend model when backend app is active.
+	 *
+	 * @return  void
+	 */
+	public function testGetModelReturnsBackendModelWhenBackendAppIsActive()
+	{
+		\JFactory::$application
+			->method('isAdmin')
+			->willReturn(true);
+
 		$component = Component::get('com_admin');
-		$this->assertEquals('AdminModelProfile', get_class($component->getBackendModel('Profile')));
+		$this->assertEquals('AdminModelProfile', get_class($component->getModel('Profile')));
 	}
 
 	/**
@@ -176,26 +187,9 @@ class ComponentTest extends \TestCaseDatabase
 	 *
 	 * @return  void
 	 */
-	public function testGetFrontendModel()
+	public function testGetModelReturnsFrontendModel()
 	{
-		$component = Component::get('com_users');
-		$this->assertEquals('UsersModelRegistration', get_class($component->getFrontendModel('Registration')));
-	}
-
-	/**
-	 * Test getModel method.
-	 *
-	 * @return  void
-	 */
-	public function testGetModel()
-	{
-		$component = Component::get('com_content');
-		$this->assertEquals('ContentModelArticles', get_class($component->getModel('Articles', array(), true)));
-
-		$component = Component::get('com_menus');
-		$this->assertEquals('MenusModelItems', get_class($component->getModel('Items', array(), true)));
-
-		$component = Component::get('com_users');
+		$component = Component::get('com_users')->site();
 		$this->assertEquals('UsersModelRegistration', get_class($component->getModel('Registration')));
 	}
 
@@ -293,15 +287,31 @@ class ComponentTest extends \TestCaseDatabase
 	 *
 	 * @return  void
 	 */
-	public function testGetTable()
+	public function testGetBackendTable()
 	{
-		$component = Component::get('com_categories');
+		$component = Component::get('com_categories')->admin();
 		$table = $component->getTable('Category');
 		$this->assertEquals('CategoriesTableCategory', get_class($table));
 
-		$component = Component::get('com_menus');
+		$component = Component::get('com_menus')->admin();
 		$table = $component->getTable('Menu');
 		$this->assertEquals('MenusTableMenu', get_class($table));
+	}
+
+	/**
+	 * Test getTable will return a backend table when backend app is active.
+	 *
+	 * @return  void
+	 */
+	public function testGetTableReturnsBackendTableWhenBackedAppIsActive()
+	{
+		\JFactory::$application
+			->method('isAdmin')
+			->willReturn(true);
+
+		$component = Component::get('com_categories');
+		$table = $component->getTable('Category');
+		$this->assertEquals('CategoriesTableCategory', get_class($table));
 	}
 
 	/**
