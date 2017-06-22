@@ -8,6 +8,42 @@
 
 **STILL NOT READY FOR PRODUCTION**
 
+## Quickstart
+
+```php
+use Phproberto\Joomla\Component;
+
+// Get active component
+$component = Component::getActive();
+
+// Get an instance of com_content component
+$component = Component::get('com_content');
+
+// Get component params
+$params = $component->getParams();
+
+// Get a single param with '1' as default value
+$showTitle = $component->getParam('show_title', '1');
+
+// Set a param value
+$component->setParam('show_title', '1');
+
+// Save params to the database
+if ($component->saveParams())
+{
+	echo 'success!';
+}
+
+// Retrieve a backend model
+$articlesModel = $component->admin()->getModel('Articles');
+
+// Retrieve a frontend model
+$archiveModel = $component->site()->getModel('Archive');
+
+// Retrieve a backend table
+$featuredTable = $component->admin()->getTable('Featured');
+```
+
 ## Requirements
 
 * **PHP 5.4+** Due to the use of traits
