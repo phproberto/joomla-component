@@ -11,6 +11,7 @@ Things like retrieve and change parameters made easy.
     * [getActive()](#getActive)
     * [getFreshInstance($option)](#getFreshInstance)
     * [getInstance($option)](#getInstance)
+    * [getPrefix()](#getPrefix)
 
 ## Methods<a id="methods"></a>
 
@@ -131,4 +132,52 @@ if ($component->getParam('show_title', '1') === '1')
 {
     // Do something
 }
+```
+
+### getPrefix() <a id="getPrefix"></a>
+
+> Retrieve component's classes prefix.
+
+Guesses the prefix used for a component based on its option. Example: `Content` for `com_content`, `Complex_Prefix` for `com_complex_prefix`.
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`string`
+
+**Examples:**
+
+```php
+// Retrieve com_content component
+$component = Component::getInstance('com_content');
+
+// Returns Content
+$prefix = $component->getPrefix();
+```
+
+### getTable($name, array $config = array(), $backend = true) <a id="getTable"></a>
+
+> Retrieve component's table.
+
+Try to find and load a table of the component.
+
+**Parameters:**
+
+* *$name (required)*: Name of the table to load. Example: Menu.
+* *$config (optional)*: Custom configuration for the table
+* *$backend (optional)*: Try to find the table in component backend?
+
+**Returns:**
+
+`string`
+
+**Examples:**
+
+```php
+$table = Component::getInstance('com_banners')->getTable('Banner');
+$table = Component::getInstance('com_banners')->getTable('Client');
+$table = Component::getInstance('com_menus')->getTable('Menu');
 ```
