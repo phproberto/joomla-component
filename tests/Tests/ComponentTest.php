@@ -26,6 +26,39 @@ class ComponentTest extends \TestCaseDatabase
 	const COM_CONTENT_EXTENSION_ID = 22;
 
 	/**
+	 * Sets up the fixture, for example, opens a network connection.
+	 * This method is called before a test is executed.
+	 *
+	 * @return  void
+	 */
+	protected function setUp()
+	{
+		parent::setUp();
+
+		$this->saveFactoryState();
+
+		$app = $this->getMockApplication();
+
+		$app->expects($this->any())
+			->method('getTemplate')
+			->will($this->returnValue('sample'));
+
+		\JFactory::$application = $app;
+	}
+	/**
+	 * Tears down the fixture, for example, closes a network connection.
+	 * This method is called after a test is executed.
+	 *
+	 * @return  void
+	 */
+	protected function tearDown()
+	{
+		$this->restoreFactoryState();
+
+		parent::tearDown();
+	}
+
+	/**
 	 * Gets the data set to be loaded into the database during setup
 	 *
 	 * @return  \PHPUnit_Extensions_Database_DataSet_CsvDataSet
@@ -85,6 +118,17 @@ class ComponentTest extends \TestCaseDatabase
 	}
 
 	/**
+	 * Test getBackendModel method.
+	 *
+	 * @return  void
+	 */
+	public function testGetBackendModel()
+	{
+		$component = Component::get('com_admin');
+		$this->assertEquals('AdminModelProfile', get_class($component->getBackendModel('Profile')));
+	}
+
+	/**
 	 * Test getExtension method.
 	 *
 	 * @return  void
@@ -125,6 +169,60 @@ class ComponentTest extends \TestCaseDatabase
 
 		$component2 = Component::getFresh('com_content');
 		$this->assertEquals('Content', $component2->getPrefix());
+	}
+
+	/**
+	 * Test getBackendModel method.
+	 *
+	 * @return  void
+	 */
+	public function testGetFrontendModel()
+	{
+		$component = Component::get('com_users');
+		$this->assertEquals('UsersModelRegistration', get_class($component->getFrontendModel('Registration')));
+	}
+
+	/**
+	 * Test getModel method.
+	 *
+	 * @return  void
+	 */
+	public function testGetModel()
+	{
+		$component = Component::get('com_content');
+		$this->assertEquals('ContentModelArticles', get_class($component->getModel('Articles', array(), true)));
+
+		$component = Component::get('com_menus');
+		$this->assertEquals('MenusModelItems', get_class($component->getModel('Items', array(), true)));
+
+		$component = Component::get('com_users');
+		$this->assertEquals('UsersModelRegistration', get_class($component->getModel('Registration')));
+	}
+
+	/**
+	 * Test that getModel throws an exception if model is not found.
+	 *
+	 * @return  void
+	 *
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function testGetModelNoModelException()
+	{
+		$component = Component::get('com_content');
+		$this->assertEquals('ContentModelArticles', get_class($component->getModel('Unknown')));
+	}
+
+	/**
+	 * Test that getModel throws an exception if model has no models folder.
+	 *
+	 * @return  void
+	 *
+	 * @expectedException \RuntimeException
+	 */
+	public function testGetModelNoModelsFolderException()
+	{
+		$component = Component::get('com_ajax');
+		$this->assertEquals('AjaxModelUnknown', get_class($component->getModel('Unknown')));
 	}
 
 	/**
