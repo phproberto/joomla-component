@@ -13,6 +13,7 @@ Things like retrieve and change parameters made easy.
     * [get($option)](#get)
     * [getPrefix()](#getPrefix)
     * [getTable($name, array $config = array(), $backend = true)](#getTable)
+    * [saveParams()](#saveParams)
 
 ## Methods<a id="methods"></a>
 
@@ -181,4 +182,30 @@ Try to find and load a table of the component.
 $table = Component::get('com_banners')->getTable('Banner');
 $table = Component::get('com_banners')->getTable('Client');
 $table = Component::get('com_menus')->getTable('Menu');
+```
+
+### saveParams() <a id="saveParams"></a>
+
+> Save component's parameters in the database.
+
+Save current instance parameters into the database.
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`boolean`
+
+**Examples:**
+
+```php
+$component = Component::get('com_banners');
+$component->setParam('purchase_type', 2);
+
+if ($component->saveParams())
+{
+    echo 'Correctly saved!';
+}
 ```
