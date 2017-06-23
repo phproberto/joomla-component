@@ -1,6 +1,6 @@
 # Joomla! Component Library
 
-> Library to interact with Joomla! Components.
+> 100% unit tested library to interact with Joomla! Components.
 
 [![Build Status](https://travis-ci.org/phproberto/joomla-component.svg?branch=master)](https://travis-ci.org/phproberto/joomla-component)
 [![Code Coverage](https://scrutinizer-ci.com/g/phproberto/joomla-component/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/phproberto/joomla-component/?branch=master)
