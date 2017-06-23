@@ -9,8 +9,10 @@ Things like retrieve and change parameters made easy.
 * [Methods](#methods)
     * [admin()](#admin)
     * [clear($option)](#clear)
+    * [clearAll()](#clearAll)
     * [get($option)](#get)
     * [getActive()](#getActive)
+    * [getClient()](#getClient)
     * [getExtension()](#getExtension)
     * [getExtensionProperty($property, $default = null)](#getExtensionProperty)
     * [getFresh($option)](#getFresh)
@@ -77,6 +79,40 @@ $foo = Component::get('com_content')
     ->getParam('foo');
 ```
 
+### clearAll() <a id="clearAll"></a>
+
+> Clears all the cached instances from the static cache. 
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`void`
+
+**Examples:**
+
+```php
+// This will store a param in the statically cached instance
+Component::get('com_content')
+    ->setParam('foo', 'var');
+
+Component::get('com_menus')
+    ->setParam('foo2', 'var22');
+
+// This will clear all the cached instances
+Component::clearAll();
+
+// This will return `NULL` because cached instance was cleared
+$foo = Component::get('com_content')
+    ->getParam('foo');
+
+// This will return `NULL` because cached instance was cleared
+$foo = Component::get('com_menus')
+    ->getParam('foo2')
+```
+
 ### get($option)<a id="get"></a>
 
 > Retrieve an instance of specific component.
@@ -131,6 +167,30 @@ catch (\InvalidArgumentException $e)
 }
 
 return $component ? $component->getParams() : new Registry;
+```
+
+### getClient() <a id="getClient"></a>
+
+> Get the active client in the component.
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`Phproberto\Joomla\Client\Client`;
+
+**Examples:**
+
+```php
+// If not specified component will use active client
+$component = Component::get('com_content');
+
+if ($component->getClient()->isSite())
+{
+    // Do something
+}
 ```
 
 ### getExtension() <a id="getExtension"></a>
