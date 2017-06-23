@@ -3,7 +3,7 @@
  * Joomla! component.
  *
  * @copyright  Copyright (C) 2017 Roberto Segura López, Inc. All rights reserved.
- * @license    GNU/GPL 2, http://www.gnu.org/licenses/gpl-2.0.htm
+ * @license    See COPYING.txt
  */
 
 namespace Phproberto\Joomla\Component;
