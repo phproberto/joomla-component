@@ -40,6 +40,11 @@ $archiveModel = $component->site()->getModel('Archive');
 
 // Retrieve a backend table
 $featuredTable = $component->admin()->getTable('Featured');
+
+// Retrieve extension info from `#__extensions` table
+$extension = $component->getExtension();
+
+echo $extension->extension_id;
 ```
 
 ## Requirements

@@ -9,12 +9,16 @@ Things like retrieve and change parameters made easy.
 * [Methods](#methods)
     * [admin()](#admin)
     * [clear($option)](#clear)
-    * [getActive()](#getActive)
-    * [getFresh($option)](#getFresh)
     * [get($option)](#get)
+    * [getActive()](#getActive)
+    * [getExtension()](#getExtension)
+    * [getExtensionProperty($property, $default = null)](#getExtensionProperty)
+    * [getFresh($option)](#getFresh)
+    * [getModel($name, array $config = array('ignore_request' => true))](#getModel)
     * [getPrefix()](#getPrefix)
-    * [getTable($name, array $config = array(), $backend = true)](#getTable)
+    * [getTable($name, array $config = array())](#getTable)
     * [saveParams()](#saveParams)
+    * [site()](#site)
 
 ## Methods<a id="methods"></a>
 
@@ -73,6 +77,32 @@ $foo = Component::get('com_content')
     ->getParam('foo');
 ```
 
+### get($option)<a id="get"></a>
+
+> Retrieve an instance of specific component.
+
+It will return a statically cached instance if component has been already loaded or a fresh if not.
+
+**Parameters:**
+
+* *$option (required)*: Component option. Example: com_content.
+
+**Returns:**
+
+`Phproberto\Joomla\Component\Component`;
+
+**Examples:**
+
+```php
+// Retrieve com_content component
+$component = Component::get('com_content');
+
+if ($component->getParam('show_title', '1') === '1')
+{
+    // Do something
+}
+```
+
 ### getActive() <a id="getActive"></a>
 
 > Try to load active component.
@@ -101,6 +131,50 @@ catch (\InvalidArgumentException $e)
 }
 
 return $component ? $component->getParams() : new Registry;
+```
+
+### getExtension() <a id="getExtension"></a>
+
+> Retrieves the component extension information from #__extensions table. 
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`\stdClass` Object with the extension info
+
+**Examples:**
+
+```php
+// Retrieve the full extension
+$extension = Component::get('com_content')->getExtension();
+
+// Access extension properties. getExtension is cached so it won't execute multiple queries
+$extensionId = Component::get('com_content')->getExtension()->extension_id;
+```
+
+### getExtensionProperty($property, $default = null) <a id="getExtensionProperty"></a>
+
+> Retrieve a specific value of the associated extension.
+
+It allows to access component extensions' property specifying a default value.
+
+**Parameters:**
+
+* *$property (required)*: Name of the property to retrieve.
+* *$default (optional)*: Default value to use if property is null
+
+**Returns:**
+
+`mixed`
+
+**Examples:**
+
+```php
+// Folder of this extension
+echo Component::get('com_content')->getExtensionProperty('folder', 'None');
 ```
 
 ### getFresh($option) <a id="getFresh"></a>
@@ -133,30 +207,30 @@ $foo = Component::getFresh('com_content')
     ->getParam('foo');
 ```
 
-### get($option)<a id="get"></a>
+### getModel($name, array $config = array('ignore_request' => true)) <a id="getModel"></a>
 
-> Retrieve an instance of specific component.
+> Retrieve component's model.
 
-It will return a statically cached instance if component has been already loaded or a fresh if not.
+Try to find and load a model of the component.
 
 **Parameters:**
 
-* *$option (required)*: Component option. Example: com_content.
+* *$name (required)*: Name of the model to load. Example: Menu.
+* *$config (optional)*: Custom configuration for the model
 
 **Returns:**
 
-`Phproberto\Joomla\Component\Component`;
+`string`
 
 **Examples:**
 
 ```php
-// Retrieve com_content component
-$component = Component::get('com_content');
+// Retrieve a backend model
+$model = Component::get('com_banners')->admin()->getModel('Banner');
+$model = Component::get('com_content')->admin()->getModel('Articles');
 
-if ($component->getParam('show_title', '1') === '1')
-{
-    // Do something
-}
+// Retrieve a frontend model
+$model = Component::get('com_users')->site()->getTable('Registration');
 ```
 
 ### getPrefix() <a id="getPrefix"></a>
@@ -183,7 +257,7 @@ $component = Component::get('com_content');
 $prefix = $component->getPrefix();
 ```
 
-### getTable($name, array $config = array(), $backend = true) <a id="getTable"></a>
+### getTable($name, array $config = array()) <a id="getTable"></a>
 
 > Retrieve component's table.
 
@@ -193,7 +267,6 @@ Try to find and load a table of the component.
 
 * *$name (required)*: Name of the table to load. Example: Menu.
 * *$config (optional)*: Custom configuration for the table
-* *$backend (optional)*: Try to find the table in component backend?
 
 **Returns:**
 
@@ -202,9 +275,9 @@ Try to find and load a table of the component.
 **Examples:**
 
 ```php
-$table = Component::get('com_banners')->getTable('Banner');
-$table = Component::get('com_banners')->getTable('Client');
-$table = Component::get('com_menus')->getTable('Menu');
+$table = Component::get('com_banners')->admin()->getTable('Banner');
+$table = Component::get('com_banners')->admin()->getTable('Client');
+$table = Component::get('com_menus')->admin()->getTable('Menu');
 ```
 
 ### saveParams() <a id="saveParams"></a>
@@ -231,4 +304,26 @@ if ($component->saveParams())
 {
     echo 'Correctly saved!';
 }
+```
+
+### site() <a id="site"></a>
+
+> Switches the component client to site to search for models, tables, etc. 
+
+**Parameters:**
+
+None
+
+**Returns:**
+
+`self` Self instance for chaining
+
+**Examples:**
+
+```php
+// This will search for a model in frontend
+Component::get('com_content')
+    ->site()
+    ->getModel('Articles');
+
 ```
