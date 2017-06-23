@@ -54,7 +54,7 @@ echo $extension->extension_id;
 
 ## Documentation
 
-See [docs](./docs/README.md) for detailed information.
+See [docs](./docs/README.md) for fully detailed documentation.
 
 ## License
 
