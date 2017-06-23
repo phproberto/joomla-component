@@ -320,7 +320,7 @@ class Component
 	/**
 	 * Save parameters to database.
 	 *
-	 * @return  Registry
+	 * @return  boolean
 	 */
 	public function saveParams()
 	{
