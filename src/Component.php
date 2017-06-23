@@ -100,6 +100,37 @@ class Component
 	}
 
 	/**
+	 * Clears all the statically cached instances.
+	 *
+	 * @return  void
+	 */
+	public static function clearAll()
+	{
+		static::$instances = array();
+	}
+
+	/**
+	 * Get a singleton instance.
+	 *
+	 * @param   string  $option  Component option
+	 *
+	 * @return  $this
+	 */
+	public static function get($option)
+	{
+		$option = trim(strtolower($option));
+
+		$class = get_called_class();
+
+		if (empty(static::$instances[$class][$option]))
+		{
+			static::$instances[$class][$option] = new static($option);
+		}
+
+		return static::$instances[$class][$option];
+	}
+
+	/**
 	 * Get the active component.
 	 *
 	 * @return  $this
@@ -124,6 +155,16 @@ class Component
 	}
 
 	/**
+	 * Get the active client.
+	 *
+	 * @return  ClientInterface
+	 */
+	public function getClient()
+	{
+		return $this->client;
+	}
+
+	/**
 	 * Ensure that we retrieve a non-statically-cached instance.
 	 *
 	 * @param   string  $option   Component option
@@ -135,27 +176,6 @@ class Component
 		static::clear($option);
 
 		return static::get($option);
-	}
-
-	/**
-	 * Get a singleton instance.
-	 *
-	 * @param   string  $option  Component option
-	 *
-	 * @return  $this
-	 */
-	public static function get($option)
-	{
-		$option = trim(strtolower($option));
-
-		$class = get_called_class();
-
-		if (empty(static::$instances[$class][$option]))
-		{
-			static::$instances[$class][$option] = new static($option);
-		}
-
-		return static::$instances[$class][$option];
 	}
 
 	/**

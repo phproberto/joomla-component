@@ -9,6 +9,7 @@
 namespace Phproberto\Joomla\Component\Tests;
 
 use Joomla\Registry\Registry;
+use Phproberto\Joomla\Client\ClientInterface;
 use Phproberto\Joomla\Component\Tests\Stubs\Component;
 
 /**
@@ -37,9 +38,9 @@ class ComponentTest extends \TestCaseDatabase
 
 		$this->saveFactoryState();
 
-		$app = $this->getMockApplication();
-
-		\JFactory::$application = $app;
+		\JFactory::$session     = $this->getMockSession();
+		\JFactory::$config      = $this->getMockConfig();
+		\JFactory::$application = $this->getMockCmsApp();
 	}
 	/**
 	 * Tears down the fixture, for example, closes a network connection.
@@ -50,6 +51,9 @@ class ComponentTest extends \TestCaseDatabase
 	protected function tearDown()
 	{
 		$this->restoreFactoryState();
+
+		// Ensure that all the tests start with no cached instances
+		Component::clearAll();
 
 		parent::tearDown();
 	}
@@ -65,6 +69,22 @@ class ComponentTest extends \TestCaseDatabase
 		$dataSet->addTable('jos_extensions', JPATH_TEST_DATABASE . '/jos_extensions.csv');
 
 		return $dataSet;
+	}
+
+	/**
+	 * Test admin method switches the component active client.
+	 *
+	 * @return  void
+	 */
+	public function testAdminSwitchesClient()
+	{
+		\JFactory::$application
+			->method('isAdmin')
+			->willReturn(false);
+
+		$component = Component::get('com_content');
+		$this->assertTrue($component->getClient()->isSite());
+		$this->assertFalse($component->admin()->getClient()->isSite());
 	}
 
 	/**
@@ -84,22 +104,72 @@ class ComponentTest extends \TestCaseDatabase
 	 *
 	 * @return  void
 	 */
-	public function testClear()
+	public function testClearRemovesCachedInstance()
 	{
 		$component = Component::get('com_content');
-		$this->assertEquals('Content', $component->getPrefix());
 
 		$reflection = new \ReflectionClass($component);
-		$prefix = $reflection->getProperty('prefix');
-		$prefix->setAccessible(true);
-		$prefix->setValue($component, 'Custom');
+		$instances = $reflection->getProperty('instances');
+		$instances->setAccessible(true);
 
-		$component2 = Component::get('com_content');
-		$this->assertEquals('Custom', $component2->getPrefix());
+		$instancesCount = count($instances->getValue($component)[Component::class]);
+		$this->assertEquals(1, $instancesCount);
+
 		Component::clear('com_content');
 
-		$component2 = Component::get('com_content');
-		$this->assertEquals('Content', $component2->getPrefix());
+		$this->assertEquals(array(), $instances->getValue($component)[Component::class]);
+	}
+
+	/**
+	 * Test that clear method only removes desired cached instance.
+	 *
+	 * @return  void
+	 */
+	public function testClearRemovesOnlySpecifiedInstance()
+	{
+		$component = Component::get('com_content');
+
+		$reflection = new \ReflectionClass($component);
+		$instancesProperty = $reflection->getProperty('instances');
+		$instancesProperty->setAccessible(true);
+
+		$instances = $instancesProperty->getValue($component)[Component::class];
+		$this->assertEquals(array('com_content'), array_keys($instances));
+
+		$component = Component::get('com_menus');
+		$instances = $instancesProperty->getValue($component)[Component::class];
+		$this->assertEquals(array('com_content', 'com_menus'), array_keys($instances));
+
+		Component::clear('com_menus');
+
+		$instances = $instancesProperty->getValue($component)[Component::class];
+		$this->assertEquals(array('com_content'), array_keys($instances));
+	}
+
+	/**
+	 * Test clearAll clears all the cached instances
+	 *
+	 * @return  void
+	 */
+	public function testClearAllRemovesCachedInstances()
+	{
+		$component = Component::get('com_content');
+
+		$reflection = new \ReflectionClass($component);
+		$instancesProperty = $reflection->getProperty('instances');
+		$instancesProperty->setAccessible(true);
+
+		$instances = $instancesProperty->getValue($component)[Component::class];
+		$this->assertEquals(1, count($instances));
+		$this->assertEquals(array('com_content'), array_keys($instances));
+
+		$component = Component::get('com_menus');
+		$instances = $instancesProperty->getValue($component)[Component::class];
+		$this->assertEquals(array('com_content', 'com_menus'), array_keys($instances));
+
+		Component::clearAll();
+
+		$this->assertEquals(array(), $instancesProperty->getValue($component));
 	}
 
 	/**
@@ -111,6 +181,40 @@ class ComponentTest extends \TestCaseDatabase
 	{
 		$component = Component::getActive();
 		$this->assertEquals('Content', $component->getPrefix());
+	}
+
+	/**
+	 * Ensure that getClient returns a client interface.
+	 *
+	 * @return  void
+	 */
+	public function testGetClientReturnsClientInterface()
+	{
+		$component = Component::get('com_content');
+
+		$this->assertInstanceOf(ClientInterface::class, $component->getClient());
+
+		$component->site();
+		$this->assertInstanceOf(ClientInterface::class, $component->getClient());
+
+		$component->admin();
+		$this->assertInstanceOf(ClientInterface::class, $component->getClient());
+	}
+
+	/**
+	 * Test getClient method returns a frontend client
+	 *
+	 * @return  void
+	 */
+	public function testGetClientReturnsFrontendClient()
+	{
+		\JFactory::$application
+			->method('isAdmin')
+			->willReturn(false);
+
+		$component = Component::get('com_content');
+
+		$this->assertTrue($component->getClient()->isSite());
 	}
 
 	/**
@@ -136,6 +240,7 @@ class ComponentTest extends \TestCaseDatabase
 			->willReturn(true);
 
 		$component = Component::get('com_admin');
+		$this->assertTrue($component->getClient()->isAdmin());
 		$this->assertEquals('AdminModelProfile', get_class($component->getModel('Profile')));
 	}
 
@@ -245,24 +350,34 @@ class ComponentTest extends \TestCaseDatabase
 	 *
 	 * @return  void
 	 */
-	public function testGetInstance()
+	public function testGetReturnsInstance()
 	{
 		$component = Component::get('com_content');
-		$this->assertEquals('Content', $component->getPrefix());
+		$this->assertEquals(Component::class, get_class($component));
+	}
 
-		$component = Component::get('COM_CONTENT');
-		$this->assertEquals('Content', $component->getPrefix());
+	/**
+	 * Test get returns a cached instance if available.
+	 *
+	 * @return  void
+	 */
+	public function testGetReturnsCachedInstance()
+	{
+		$component = Component::get('com_content');
 
 		$reflection = new \ReflectionClass($component);
-		$prefix = $reflection->getProperty('prefix');
-		$prefix->setAccessible(true);
-		$prefix->setValue($component, 'Custom');
+		$instancesProperty = $reflection->getProperty('instances');
+		$instancesProperty->setAccessible(true);
 
-		$component2 = Component::get('com_content');
-		$this->assertEquals('Custom', $component2->getPrefix());
+		$instances = $instancesProperty->getValue($component)[Component::class];
+		$this->assertEquals(1, count($instances));
+		$this->assertEquals(array('com_content'), array_keys($instances));
 
-		$prefix->setValue($component, null);
-		$this->assertEquals('Content', $component2->getPrefix());
+		$component2 = Component::get('COM_CONTent');
+		$instances = $instancesProperty->getValue($component2)[Component::class];
+		$this->assertEquals(1, count($instances));
+		$this->assertEquals(array('com_content'), array_keys($instances));
+		$this->assertEquals(spl_object_hash($component), spl_object_hash($component2));
 	}
 
 	/**
@@ -273,6 +388,9 @@ class ComponentTest extends \TestCaseDatabase
 	public function testGetPrefix()
 	{
 		$component = Component::get('com_content');
+		$this->assertEquals('Content', $component->getPrefix());
+
+		$component = Component::get('COM_CONTENT');
 		$this->assertEquals('Content', $component->getPrefix());
 
 		$component = Component::get('com_banners');
@@ -323,7 +441,7 @@ class ComponentTest extends \TestCaseDatabase
 	 */
 	public function testGetTableThrowsException()
 	{
-		$component = Component::get('com_categories');
+		$component = Component::get('com_categories')->admin();
 		$table = $component->getTable('Inexistent');
 	}
 
@@ -344,5 +462,21 @@ class ComponentTest extends \TestCaseDatabase
 
 		$component = Component::getFresh('com_content');
 		$this->assertEquals('my-value', $component->getParam('custom-param'));
+	}
+
+	/**
+	 * Test site method switches the component active client.
+	 *
+	 * @return  void
+	 */
+	public function testSiteSwitchesClient()
+	{
+		\JFactory::$application
+			->method('isAdmin')
+			->willReturn(true);
+
+		$component = Component::get('com_content');
+		$this->assertFalse($component->getClient()->isSite());
+		$this->assertTrue($component->site()->getClient()->isSite());
 	}
 }
