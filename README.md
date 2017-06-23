@@ -49,7 +49,7 @@ echo $extension->extension_id;
 
 ## Requirements
 
-* **PHP 5.4+** Due to the use of traits
+* **PHP 5.5+** 
 * **Joomla! CMS v3.7+**
 
 ## Documentation
