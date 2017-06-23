@@ -14,8 +14,17 @@ use Phproberto\Joomla\Component;
 // Get active component
 $component = Component::getActive();
 
-// Get an instance of com_content component
+// Get an instance of com_content component. Instances are cached statically to avoid loading duplicated data.
 $component = Component::get('com_content');
+
+// You can also get a 100% fresh instance (not cached)
+$component = Component::getFresh('com_content');
+
+// You can clear a specific instance from the cache
+Component::clear('com_content');
+
+// Or clear all the instances from the cache
+Component::clearAll();
 
 // Get component params
 $params = $component->getParams();
@@ -32,13 +41,19 @@ if ($component->saveParams())
 	echo 'success!';
 }
 
-// Retrieve a backend model
+// Do something based on the active client in the component
+if ($component->getClient()->isSite())
+{
+	// Do something
+}
+
+// Retrieve a backend model changing the component client
 $articlesModel = $component->admin()->getModel('Articles');
 
-// Retrieve a frontend model
+// Retrieve a frontend model changing the component client
 $archiveModel = $component->site()->getModel('Archive');
 
-// Retrieve a backend table
+// Retrieve a backend table changing the component client
 $featuredTable = $component->admin()->getTable('Featured');
 
 // Retrieve extension info from `#__extensions` table
