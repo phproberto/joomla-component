@@ -4,7 +4,7 @@
 
 Component class is intended to ease the management of component related stuff.  
 
-Things like retrieve and change parameters made easy.
+Things like retrieve and change parameters are made easy.
 
 * [Methods](#methods)
     * [admin()](#admin)
@@ -50,7 +50,7 @@ Component::get('com_content')
 
 > Clears a cached instance from the static cache. 
 
-By default components are statically cached to avoid that their information is retrieved multiple times from database in the same time execution. This is the perfect for 99% of the usages but there are special cases where you may want to ensure that you clear the cached instance. 
+By default components are statically cached to prevent their information being retrieved multiple times from the database in the same time execution. This is perfect for 99% of uses but there are special cases where you may want to ensure that you clear the cached instance. 
 
 **Parameters:**
 
@@ -115,9 +115,9 @@ $foo = Component::get('com_menus')
 
 ### get($option)<a id="get"></a>
 
-> Retrieve an instance of specific component.
+> Retrieve an instance of a specific component.
 
-It will return a statically cached instance if component has been already loaded or a fresh if not.
+It will return a statically cached instance if the component has been already loaded or a fresh one if not.
 
 **Parameters:**
 
@@ -141,7 +141,7 @@ if ($component->getParam('show_title', '1') === '1')
 
 ### getActive() <a id="getActive"></a>
 
-> Try to load active component.
+> Try to load the active component.
 
 This will retrieve the active component based on url option. 
 
@@ -195,7 +195,7 @@ if ($component->getClient()->isSite())
 
 ### getExtension() <a id="getExtension"></a>
 
-> Retrieves the component extension information from #__extensions table. 
+> Retrieves the component extension information from the #__extensions table. 
 
 **Parameters:**
 
@@ -219,7 +219,7 @@ $extensionId = Component::get('com_content')->getExtension()->extension_id;
 
 > Retrieve a specific value of the associated extension.
 
-It allows to access component extensions' property specifying a default value.
+This allows you to access a component extensions'property specifying a default value.
 
 **Parameters:**
 
@@ -241,7 +241,8 @@ echo Component::get('com_content')->getExtensionProperty('folder', 'None');
 
 > Retrieve a non-statically-cached instance.
 
-By default components are statically cached to avoid that their information is retrieved multiple times from database in the same time execution. This is the perfect for 99% of the usages but there are special cases where you may want to ensure that you retrieve a non-cachhed instance. 
+By default components are statically cached to prevent their information being retrieved multiple times from the database in the same time execution. This is perfect for 99% of uses but there are special cases where you may want to ensure that you clear the cached instance. 
+
 
 **Parameters:**
 
