@@ -219,7 +219,7 @@ $extensionId = Component::get('com_content')->getExtension()->extension_id;
 
 > Retrieve a specific value of the associated extension.
 
-This allows you to access a component extensions'property specifying a default value.
+This allows you to access a component extensions' property specifying a default value.
 
 **Parameters:**
 
